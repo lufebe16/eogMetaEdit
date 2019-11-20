@@ -19,14 +19,12 @@ Copyright 2012 Wayne Vosberg <wayne.vosberg@mindtunnel.com>
 
 from gi.repository import GObject, Gtk, Gdk, Eog, PeasGtk # , Pango
 from os.path import join, basename
-from urlparse import urlparse
+from urllib.parse import urlparse
 import pyexiv2
 import re
 import datetime
 import time
-from string import strip
 import sys
-#import pango
 
 
 
@@ -190,7 +188,7 @@ class MetaEditPlugin(GObject.Object, Eog.WindowActivatable):
 		self.window.handler_block(self.cb_ids['key-press-event'][self.window])					
 		
 		for S in 'focus-in-event','focus-out-event':
-			if not self.cb_ids.has_key(S):
+			if not S in self.cb_ids:
 				self.cb_ids[S]={}
 			for W in self.entries:
 				self.cb_ids[S][W] = W.connect(S, self.focus_event_cb, \
@@ -200,7 +198,7 @@ class MetaEditPlugin(GObject.Object, Eog.WindowActivatable):
 			'focus-out-event',self.test_date_cb, self.newDate, self)
 		
 		for S in 'changed',:
-			if not self.cb_ids.has_key(S):
+			if not S in self.cb_ids:
 				self.cb_ids[S]={}
 			for W in self.combos:
 				self.cb_ids[S][W] = W.connect(S, self.combo_changed_cb, self)
@@ -234,7 +232,7 @@ class MetaEditPlugin(GObject.Object, Eog.WindowActivatable):
 		'''remove all the callbacks stored in dict self.cb_ids '''
 		
 		for S in self.cb_ids:
-			for W, id in self.cb_ids[S].iteritems():
+			for W, id in self.cb_ids[S].items():
 				W.disconnect(id)
 
 
@@ -367,10 +365,10 @@ class MetaEditPlugin(GObject.Object, Eog.WindowActivatable):
 						'changedImage and thumbImage are None!')
 			
 			if self.Debug:
-				print '\ncombo_changed_cb-------\n',self.showImages()
-				print 'marking %s (%s)'%(self.changedImage,urlparse(\
-						self.changedImage.get_uri_for_display()).path)
-				print '----------'
+				print ('\ncombo_changed_cb-------\n',self.showImages())
+				print ('marking %s (%s)'%(self.changedImage,urlparse(\
+						self.changedImage.get_uri_for_display()).path))
+				print ('----------')
 		
 		# return True -- default callback isn't needed
 		return True
@@ -411,7 +409,7 @@ class MetaEditPlugin(GObject.Object, Eog.WindowActivatable):
 			elif len(self.metadata[self.EXvars[0]].raw_value) == 0:
 				changeString += '\n   set %s to "%s"'%(self.EXvars[0],self.Make)
 		except:
-			print 'cs1 error: ',sys.exc_info()
+			print ('cs1 error: ',sys.exc_info())
 			return changeString
 		
 		try:
@@ -420,7 +418,7 @@ class MetaEditPlugin(GObject.Object, Eog.WindowActivatable):
 			elif 	len(self.metadata[self.EXvars[1]].raw_value) == 0:
 				changeString += '\n   set %s to "%s"'%(self.EXvars[1],self.Make+' '+self.Model)
 		except:
-			print 'cs2 error: ',sys.exc_info()
+			print ('cs2 error: ',sys.exc_info())
 			return changeString
 	
 		
@@ -544,8 +542,8 @@ class MetaEditPlugin(GObject.Object, Eog.WindowActivatable):
 		'''Commit the changes to the file'''
 		
 		if self.Debug:
-			print '\ncommit: ',\
-				urlparse(self.changedImage.get_uri_for_display()).path
+			print ('\ncommit: ',\
+				urlparse(self.changedImage.get_uri_for_display()).path)
 		
 		saveTitle = self.newTitle.get_active_text()
 		saveDate = self.newDate.get_active_text()
@@ -574,20 +572,20 @@ class MetaEditPlugin(GObject.Object, Eog.WindowActivatable):
 		if self.EXvars[0] not in self.all_keys or \
 					len(self.metadata[self.EXvars[0]].raw_value) == 0:
 			if self.Debug:
-				print 'setting %s to eogMetaEdit'%self.EXvars[0]
+				print ('setting %s to eogMetaEdit'%self.EXvars[0])
 				
 			self.metadata.__setitem__(self.EXvars[0],self.Make)
 			
 		if self.EXvars[1] not in self.all_keys or \
 					len(self.metadata[self.EXvars[1]].raw_value) == 0:
 			if self.Debug:
-				print 'setting %s to eogMetaEdit v2.0'%self.EXvars[1]
+				print ('setting %s to eogMetaEdit v2.0'%self.EXvars[1])
 			self.metadata.__setitem__(self.EXvars[1],self.Make+' '+self.Model)
 				
 		# title variables
 		for k in self.TIvars:
 			if self.Debug:
-				print 'update[',k,'] to [',saveTitle,']'
+				print ('update[',k,'] to [',saveTitle,']')
 			try:
 				self.metadata.__setitem__(k,saveTitle)
 			except TypeError:
@@ -596,24 +594,24 @@ class MetaEditPlugin(GObject.Object, Eog.WindowActivatable):
 		# date/time variables
 		for k in self.DTvars:
 			if self.Debug:
-				print "update [",k,"] to [",saveDate,"]"
+				print ("update [",k,"] to [",saveDate,"]")
 			self.metadata.__setitem__(k,saveDate)
 		for k in self.DTrem:
 			if k in self.all_keys:
 				if self.Debug:
-					print "removing [",k,"]"
+					print ("removing [",k,"]")
 				self.metadata.__delitem__(k)
 		
 		for k in self.isoDate:
 			if self.Debug:
-				print 'update [',k,'] to [',d.date()
+				print ('update [',k,'] to [',d.date())
 			try:
 				self.metadata.__setitem__(k,d.date())
 			except TypeError:
 				self.metadata.__setitem__(k,[d.date()])
 		for k in self.isoTime:
 			if self.Debug:
-				print 'update [',k,'] to [',d.time()
+				print ('update [',k,'] to [',d.time())
 			try:
 				self.metadata.__setitem__(k,d.time())
 			except TypeError:
@@ -622,7 +620,7 @@ class MetaEditPlugin(GObject.Object, Eog.WindowActivatable):
 		# caption variables	   
 		for k in self.CAvars:
 			if self.Debug:
-				print "update [",k,"]  to [",saveCaption,"]"
+				print ("update [",k,"]  to [",saveCaption,"]")
 			try:
 				self.metadata.__setitem__(k,saveCaption)
 			except UnicodeDecodeError:
@@ -632,19 +630,19 @@ class MetaEditPlugin(GObject.Object, Eog.WindowActivatable):
 		for k in self.CArem:
 			if k in self.all_keys:
 				if self.Debug:
-					print "removing [",k,"]"
+					print ("removing [",k,"]")
 				self.metadata.__delitem__(k)		
 		
 		# keyword variables
 		newKW = ' '.join(re.split(',\s+',saveKeyword)).split()
 		for k in self.KWvars:			
 			if self.Debug:
-				print "update [",k,"] to ",newKW
+				print ("update [",k,"] to ",newKW)
 			self.metadata.__setitem__(k,newKW)
 		for k in self.KWrem:
 			if k in self.all_keys:
 				if self.Debug:
-					print "removing [",k,"]"
+					print ("removing [",k,"]")
 				self.metadata.__delitem__(k)  
 		
 		# mark the metadata as unchanged before updating the file in
@@ -660,7 +658,7 @@ class MetaEditPlugin(GObject.Object, Eog.WindowActivatable):
 		self.loadMeta(urlparse(self.changedImage.get_uri_for_display()).path)
 		
 		if self.Debug:
-			print 'after commit:'
+			print ('after commit:')
 			self.showImages()
 
 		return True
@@ -738,10 +736,10 @@ class MetaEditPlugin(GObject.Object, Eog.WindowActivatable):
 		Event = Gtk.get_current_event()
 		
 		if self.Debug:
-			print '\n\nfile changed ----------------------------------------'
-			print 'Event: ',Event
+			print ('\n\nfile changed ----------------------------------------')
+			print ('Event: ',Event)
 			if Event != None:
-				print 'Event type: ',Event.type
+				print ('Event type: ',Event.type)
 			self.showImages()
 			
 		if Event != None and self.thumbImage == None:
@@ -750,7 +748,7 @@ class MetaEditPlugin(GObject.Object, Eog.WindowActivatable):
 			# seem to be able to safely just discard it and then the various
 			# new image selections work the same.
 			if self.Debug:
-				print 'selection event received with no thumbImage.  discard!'
+				print ('selection event received with no thumbImage.  discard!')
 			return False	
 		
 		# check to see if this callback is from a canceled file change
@@ -760,7 +758,7 @@ class MetaEditPlugin(GObject.Object, Eog.WindowActivatable):
 			# a file changed callback that we want to ignore so that we don't
 			# overwrite the combobox modified data with the old file data. 
 			if self.Debug:
-				print 'ignoring change'
+				print ('ignoring change')
 			
 			self.ignoreChange = False							
 			return False
@@ -770,16 +768,16 @@ class MetaEditPlugin(GObject.Object, Eog.WindowActivatable):
 			# current metadata!
 			
 			if self.Debug and Event != None:
-				print '\n---------------------------------------------------'
-				print 'event: %s (%s) state: %s'%(Event.type,\
-									Event.get_click_count(),Event.get_state())
-				print 'device: %s'%Event.get_device()
-				print 'source: %s'%Event.get_source_device()
-				print 'button: ',Event.get_button()
-				print 'keycode: ',Event.get_keycode()
-				print 'keyval: ',Event.get_keyval()
-				print 'screen: ',Event.get_screen()
-				print 'window stat: ',Event.window_state
+				print ('\n---------------------------------------------------')
+				print ('event: %s (%s) state: %s'%(Event.type,\
+									Event.get_click_count(),Event.get_state()))
+				print ('device: %s'%Event.get_device())
+				print ('source: %s'%Event.get_source_device())
+				print ('button: ',Event.get_button())
+				print ('keycode: ',Event.get_keycode())
+				print ('keyval: ',Event.get_keyval())
+				print ('screen: ',Event.get_screen())
+				print ('window stat: ',Event.window_state)
 			
 			if Event != None and Event.type == Gdk.EventType.BUTTON_PRESS:
 				# we got here by clicking a thumbnail in the thumb navigator.
@@ -804,8 +802,8 @@ class MetaEditPlugin(GObject.Object, Eog.WindowActivatable):
 				# stay on the current file.  
 				if self.changedImage != None:
 					if self.Debug:
-						print 'reset thumb %s'%urlparse(\
-							self.changedImage.get_uri_for_display()).path
+						print ('reset thumb %s'%urlparse(\
+							self.changedImage.get_uri_for_display()).path)
 					# ignore the next file changed callback so that we
 					# revert to the previous photo without modifying the comboboxes
 					self.ignoreChange = True
@@ -827,13 +825,13 @@ class MetaEditPlugin(GObject.Object, Eog.WindowActivatable):
 		if self.thumbImage == None:
 			if self.changedImage != None:
 				if self.Debug:
-					print 'setting thumbImage to changedImage'
+					print ('setting thumbImage to changedImage')
 				self.thumbImage = self.changedImage
 		
 		if self.thumbImage != None:		
 			if self.Debug:
-				print 'loading thumb meta:',\
-					urlparse(self.thumbImage.get_uri_for_display()).path
+				print ('loading thumb meta:',\
+					urlparse(self.thumbImage.get_uri_for_display()).path)
 			try:
 				self.loadMeta(urlparse(self.thumbImage.get_uri_for_display()).path)
 			except:
@@ -852,7 +850,7 @@ class MetaEditPlugin(GObject.Object, Eog.WindowActivatable):
 				self.metaChanged = False
 		else:
 			if self.Debug:
-				print 'no metadata to load!'
+				print ('no metadata to load!')
 				self.showImages()
 			return False
 
@@ -866,15 +864,13 @@ class MetaEditPlugin(GObject.Object, Eog.WindowActivatable):
 		
 		combo.set_active(-1)		
 		l=range(len(combo.get_model()))
-		l.reverse()	   
-		for i in l:
+		for i in reversed(l):
 			combo.remove(i)
 	
 	
 	
 	def loadMeta(self, filePath):
 		'''set the comboboxes to the current files data'''
-		
 		
 		self.commitButton.set_state(Gtk.StateType.INSENSITIVE)
 		self.revertButton.set_state(Gtk.StateType.INSENSITIVE)
@@ -883,10 +879,7 @@ class MetaEditPlugin(GObject.Object, Eog.WindowActivatable):
 		self.fileName.set_label(basename(filePath))
 		
 		self.metadata = pyexiv2.ImageMetadata(filePath)
-		
-		self.metadata.read()	
-		
-			
+		self.metadata.read()
 		self.all_keys = self.metadata.exif_keys+self.metadata.iptc_keys+\
 			self.metadata.xmp_keys
 		
@@ -930,7 +923,7 @@ class MetaEditPlugin(GObject.Object, Eog.WindowActivatable):
 			d = datetime.datetime.now()
 			newisoDate = str(d.date()) # "YY-MM-DD"
 			newisoTime = str(d.strftime('%H:%M:%S'))+'+00:00' # "HH:MM:SS"
-			print 'Invalid date: [%s] using current: [%s]'%(saveDate,str(d.strftime('%Y:%m:%d %H:%M:%S')))
+			print ('Invalid date: [%s] using current: [%s]'%(saveDate,str(d.strftime('%Y:%m:%d %H:%M:%S'))))
 			newDates.insert(0,str(d.strftime('%Y:%m:%d %H:%M:%S')))
 		
 		for t in newDates:
@@ -957,7 +950,7 @@ class MetaEditPlugin(GObject.Object, Eog.WindowActivatable):
 				except KeyError:
 					self.newTitle.append_text(t['x-default'])
 				except:
-					print 'title error:',sys.exc_info()
+					print ('title error:',sys.exc_info())
 					
 		self.newTitle.set_active(0)
 		
@@ -973,7 +966,7 @@ class MetaEditPlugin(GObject.Object, Eog.WindowActivatable):
 				except KeyError:
 					self.newCaption.append_text(c['x-default'])
 				except:
-					print 'caption error:',sys.exc_info()
+					print ('caption error:',sys.exc_info())
 					
 		self.newCaption.set_active(0)	
 		
@@ -1002,11 +995,11 @@ class MetaEditPlugin(GObject.Object, Eog.WindowActivatable):
 			d = datetime.datetime.now()
 			newisoDate = str(d.date())
 			newisoTime = str(dd.strftime('%H:%M:%S'))+'+00:00'
-			print 'Invalid date: [%s]'%saveDate	
+			print ('Invalid date: [%s]'%saveDate)
 		
 		if self.Debug:
-			print 'newisoDate: ',newisoDate
-			print 'newisoTime: ',newisoTime
+			print ('newisoDate: ',newisoDate)
+			print ('newisoTime: ',newisoTime)
 			
 		saveCaption = self.newCaption.get_active_text()
 		saveKeyword = self.newKeyword.get_active_text()
@@ -1029,7 +1022,7 @@ class MetaEditPlugin(GObject.Object, Eog.WindowActivatable):
 			need_commit = self.checkInitial(self.isoTime,[],newisoTime)
 			
 		if self.Debug:
-			print 'need commit: ',need_commit
+			print ('need commit: ',need_commit)
 			
 		if need_commit:
 			self.commitButton.set_state(Gtk.StateType.NORMAL)
@@ -1051,26 +1044,26 @@ class MetaEditPlugin(GObject.Object, Eog.WindowActivatable):
 						if type(self.metadata[k].raw_value) == str:
 							if self.metadata[k].raw_value != newValue:
 								if self.Debug:
-									print k,'(s)[',self.metadata[k].raw_value,']!=[',newValue,']'
+									print (k,'(s)[',self.metadata[k].raw_value,']!=[',newValue,']')
 								return True
 						elif type(self.metadata[k].raw_value) == list:
 							if ', '.join(self.metadata[k].raw_value) != newValue:
 								if self.Debug:
-									print k,'(l)[',','.join(self.metadata[k].raw_value),']!=[',newValue,']'
+									print (k,'(l)[',','.join(self.metadata[k].raw_value),']!=[',newValue,']')
 								return True
 						else:
 							if self.metadata[k].raw_value['x-default'] != newValue:
 								if self.Debug:
-									print k,'(d)[',self.metadata[k].raw_value['x-default'],']!=[',newValue,']'
+									print (k,'(d)[',self.metadata[k].raw_value['x-default'],']!=[',newValue,']')
 								return True							
 					else:
 						if self.Debug:
-							print k,' non-existent'
+							print (k,' non-existent')
 						return True
 			for k in remVars:
 				if k in self.all_keys:
 					if self.Debug:
-						print k,' exists'
+						print (k,' exists')
 					return True
 			return False
 		else:
@@ -1139,7 +1132,7 @@ class MetaEditPlugin(GObject.Object, Eog.WindowActivatable):
 			if k in self.all_keys:
 				V=self.metadata[k].raw_value
 				if self.Debug:
-					print 'k: ',k,' V: ',V
+					print ('k: ',k,' V: ',V)
 				if type(V) == str:
 					myKeywords.append(V)
 				else:
@@ -1147,7 +1140,7 @@ class MetaEditPlugin(GObject.Object, Eog.WindowActivatable):
 					for kk in V:
 						myKeywords.append(kk)
 		if self.Debug:
-			print 'myKeywords:',myKeywords
+			print ('myKeywords:',myKeywords)
 			
 		return myKeywords	
 
@@ -1158,22 +1151,22 @@ class MetaEditPlugin(GObject.Object, Eog.WindowActivatable):
 		'''debug function: dump the current images paths'''
 		
 		if self.curImage == None:
-			print 'current: None'
+			print ('current: None')
 		else:
-			print 'current: ',urlparse(self.curImage.get_uri_for_display()).path
+			print ('current: ',urlparse(self.curImage.get_uri_for_display()).path)
 		try:
-			print 'win says: ',urlparse(self.window.get_image().get_uri_for_display()).path
+			print ('win says: ',urlparse(self.window.get_image().get_uri_for_display()).path)
 		except:
-			print 'none'
+			print ('none')
 		if self.changedImage == None:
-			print 'changed: None'
+			print ('changed: None')
 		else:
-			print 'changed: ',urlparse(self.changedImage.get_uri_for_display()).path
+			print ('changed: ',urlparse(self.changedImage.get_uri_for_display()).path)
 		if self.thumbImage == None:	
-			print 'thumb: None'
+			print ('thumb: None')
 		else:
-			print 'thumb: ',urlparse(self.thumbImage.get_uri_for_display()).path
+			print ('thumb: ',urlparse(self.thumbImage.get_uri_for_display()).path)
 		try:
-			print 'thumb says: ',urlparse(self.thumbview.get_first_selected_image().get_uri_for_display()).path
+			print ('thumb says: ',urlparse(self.thumbview.get_first_selected_image().get_uri_for_display()).path)
 		except:
-			print 'none'
+			print ('none')

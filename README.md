@@ -62,3 +62,14 @@ Note, valid date strings are:
 * YYYY:MM:DD HH:MM:SS
 * YYYY:MM:DDTHH:MM:SS
 
+
+ATTENTION:
+Python3 installation notes:
+
+pyexiv2 module for python3 exists in two versions.
+
+* py3exiv2 (https://launchpad.net/py3exiv2)
+* pyexiv2 (https://github.com/LeoHsiao1/pyexiv2)
+
+You will need to install py3exiv2, which is compatible with pyexiv2 from python2, but NOT pyexiv2 from LeoHsiao1, which is not compatible and has a different API.
+

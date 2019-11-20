@@ -1,7 +1,7 @@
 [Plugin]
 Module=eogMetaEdit
 IAge=2
-Loader=python
+Loader=python3
 Name=MetaEditPlugin
 Icon=postr
 Description=EoG Metadata Editor
